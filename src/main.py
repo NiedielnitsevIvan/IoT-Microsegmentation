@@ -2,7 +2,7 @@ import argparse
 
 from constants import DEFAULT_SEED
 from gen_topology import TopologyGenerator
-
+from policy_synthesizer import PolicySynthesizer
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -31,14 +31,19 @@ if __name__ == "__main__":
                         help="Scale for role-pair noise (0 = only functional core)")
     parser.add_argument("--n_clusters", default=4, type=int,
                         help="Number of clusters (rooms/zones) for spectral policy synthesis")
+    parser.add_argument("--whitelist_roles", default=None, nargs="*",
+                        help="Roles to whitelist in policy synthesis that should be opened to inter-cluster communication")
 
     parser.add_argument("--topology_out", type=str, default=None,
                         help="Output path for generated topology JSON")
+    parser.add_argument("--policy_out", type=str, default=None,
+                        help="Output path for synthesized policy JSON")
 
     args = parser.parse_args()
     stringified_noise = f"{args.noise_scale:.2f}".replace('.', '_')
 
     topology_out = args.topology_out or f"data/topology_{args.seed}_{stringified_noise}.json"
+    policy_out = args.policy_out or f"data/policy_synthesis_{args.seed}_{stringified_noise}.json"
 
     topology_generator = TopologyGenerator(
         topology_out,
@@ -55,3 +60,13 @@ if __name__ == "__main__":
         noise_scale=args.noise_scale,
     )
     topology = topology_generator.generate_topology()
+    policy_synthesizer = PolicySynthesizer(
+        policy_out,
+        topo_json=topology,
+        seed=args.seed,
+        noise_scale=args.noise_scale,
+        n_clusters=args.n_clusters,
+        whitelist_roles=args.whitelist_roles,
+    )
+    edges = policy_synthesizer.synthesize()
+
