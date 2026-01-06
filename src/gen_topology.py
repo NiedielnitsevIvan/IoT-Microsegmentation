@@ -31,6 +31,7 @@ class TopologyGenerator:
 
     def __init__(
         self,
+        out_json: str,
         seed: int = DEFAULT_SEED,
         n_sensors: int = 20,
         n_cameras: int = 8,
@@ -47,8 +48,7 @@ class TopologyGenerator:
         zone_affinity_weight: float = 5.0,
         preferential_attachment_power: float = 1.2,
     ):
-        stringified_noise = f"{noise_scale:.2f}".replace('.', '_')
-        self.out_json: str = f"data/topology_{seed}_{stringified_noise}.json"
+        self.out_json = out_json
         self.seed = seed
         self.n_sensors = n_sensors
         self.n_cameras = n_cameras

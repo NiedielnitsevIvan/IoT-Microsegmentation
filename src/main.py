@@ -32,9 +32,16 @@ if __name__ == "__main__":
     parser.add_argument("--n_clusters", default=4, type=int,
                         help="Number of clusters (rooms/zones) for spectral policy synthesis")
 
+    parser.add_argument("--topology_out", type=str, default=None,
+                        help="Output path for generated topology JSON")
+
     args = parser.parse_args()
+    stringified_noise = f"{args.noise_scale:.2f}".replace('.', '_')
+
+    topology_out = args.topology_out or f"data/topology_{args.seed}_{stringified_noise}.json"
 
     topology_generator = TopologyGenerator(
+        topology_out,
         seed=args.seed,
         n_sensors=args.n_sensors,
         n_cameras=args.n_cameras,
