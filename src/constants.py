@@ -2,14 +2,14 @@
 Constants and role/protocol definitions for IoT network topology generation.
 """
 
-from typing import Dict, List, Tuple, Iterable
+from typing import Dict, List, Tuple
 
 DEFAULT_SEED = 42
 
 Role = str
 
 ROLES: List[Role] = [
-    "sensor", "camera", "actuator", "hub", "controller", "nvr", "gateway", "cloud"
+    "sensor", "actuator", "camera", "nvr", "controller", "hub", "gateway", "cloud"
 ]
 
 # Mapping of roles to their protocol "capabilities" per role

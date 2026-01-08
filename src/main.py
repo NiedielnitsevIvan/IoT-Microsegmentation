@@ -2,6 +2,7 @@ import argparse
 
 from constants import DEFAULT_SEED
 from gen_topology import TopologyGenerator
+from plot_topology import TopologyVisualizer
 from policy_synthesizer import PolicySynthesizer
 
 if __name__ == "__main__":
@@ -43,6 +44,7 @@ if __name__ == "__main__":
     stringified_noise = f"{args.noise_scale:.2f}".replace('.', '_')
 
     topology_out = args.topology_out or f"data/topology_{args.seed}_{stringified_noise}.json"
+    topology_plot_out = topology_out.replace('.json', '.png')
     policy_out = args.policy_out or f"data/policy_synthesis_{args.seed}_{stringified_noise}.json"
 
     topology_generator = TopologyGenerator(
@@ -70,3 +72,10 @@ if __name__ == "__main__":
     )
     edges = policy_synthesizer.synthesize()
 
+    viz = TopologyVisualizer(topology_out, policy_out, args.seed)
+    viz.create_plot(
+        out_path=topology_plot_out,
+        width=2400,
+        height=1600,
+        with_labels=True,
+    )
