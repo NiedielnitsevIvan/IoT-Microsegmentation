@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
     topology_out = args.topology_out or f"data/topology_{args.seed}_{stringified_noise}.json"
     topology_plot_out = topology_out.replace('.json', '.png')
-    policy_out = args.policy_out or f"data/policy_synthesis_{args.seed}_{stringified_noise}.json"
+    policy_out = args.policy_out or f"data/policy_synthesis_{args.seed}_{stringified_noise}.csv"
 
     topology_generator = TopologyGenerator(
         topology_out,
