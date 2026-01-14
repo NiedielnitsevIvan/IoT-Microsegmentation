@@ -72,6 +72,15 @@ class IoTDevice(ABC):
             "zorder": 1
         }
 
+    @property
+    def criticality(self) -> float:
+        """
+        Returns the criticality score of the device.
+
+        By default, it's dependent on the device level.
+        """
+        return float(self.level) * 2.5 / 10.0  # Normalize to [0.25, 1.0]
+
     def __repr__(self):
         return f"<{self.__class__.__name__} id={self.id} zone={self.zone}>"
 
@@ -94,6 +103,13 @@ class Sensor(IoTDevice):
     @property
     def can_receive_commands(self):
         return False
+
+    @property
+    def criticality(self) -> float:
+        """
+        Sensors passively collect data and loss of a sensor is less critical.
+        """
+        return 0.4
 
     @property
     def viz_config(self):
@@ -124,6 +140,15 @@ class Camera(IoTDevice):
         return False
 
     @property
+    def criticality(self) -> float:
+        """
+        Cameras are less critical because they are read-only devices,
+        and the loss of a camera cannot directly affect the control
+        of the entire system.
+        """
+        return 0.3
+
+    @property
     def viz_config(self):
         return {
             "color": "tab:orange",
@@ -152,6 +177,14 @@ class Actuator(IoTDevice):
         return True
 
     @property
+    def criticality(self) -> float:
+        """
+        Actuators can directly affect the physical environment,
+        so is can affect the overall system's operation.
+        """
+        return 0.6
+
+    @property
     def viz_config(self):
         return {
             "color": "tab:green",
@@ -174,6 +207,13 @@ class Hub(IoTDevice):
     @property
     def level(self):
         return 2
+
+    @property
+    def criticality(self) -> float:
+        """
+        Hubs aggregate data and have a crucial role in data flow within the network.
+        """
+        return 0.7
 
     @property
     def viz_config(self):
@@ -200,6 +240,15 @@ class NVR(IoTDevice):
         return 2
 
     @property
+    def criticality(self) -> float:
+        """
+        NVRs usually have access to a large number of cameras.
+        They are powerful nodes for launching attacks within the network,
+        so their weight should be high.
+        """
+        return 0.8
+
+    @property
     def viz_config(self):
         return {
             "color": "tab:brown",
@@ -222,6 +271,14 @@ class Controller(IoTDevice):
     @property
     def level(self):
         return 2
+
+    @property
+    def criticality(self) -> float:
+        """
+        Controllers have significant control over edge devices,
+        attacks or incorrect pruning here can have serious consequences.
+        """
+        return 1
 
     @property
     def viz_config(self):
@@ -248,6 +305,14 @@ class Gateway(IoTDevice):
         return 3
 
     @property
+    def criticality(self) -> float:
+        """
+        Gateways are crucial because they serve as a bridge between
+        networks. Attacks on gateways can compromise the entire network.
+        """
+        return 0.95
+
+    @property
     def viz_config(self):
         return {
             "color": "tab:pink",
@@ -269,6 +334,15 @@ class Cloud(IoTDevice):
     @property
     def level(self):
         return 4
+
+    @property
+    def criticality(self) -> float:
+        """
+        Cloud services are critical for data storage and processing.
+        Attacks on the cloud usually result in data leaks,
+        but may not cause physical damage so slightly less critical than controllers/gateways.
+        """
+        return 0.9
 
     @property
     def viz_config(self):
