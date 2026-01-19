@@ -2,6 +2,7 @@ import argparse
 
 from constants import DEFAULT_SEED
 from gen_topology import TopologyGenerator
+from metrics import MetricsAnalyzer
 from plot_topology import TopologyVisualizer
 from policy_synthesizer import PolicySynthesizer
 
@@ -39,13 +40,16 @@ if __name__ == "__main__":
                         help="Output path for generated topology JSON")
     parser.add_argument("--policy_out", type=str, default=None,
                         help="Output path for synthesized policy JSON")
+    parser.add_argument("--metrics_out", type=str, default=None,
+                        help="Output path for computed metrics CSV")
 
     args = parser.parse_args()
     stringified_noise = f"{args.noise_scale:.2f}".replace('.', '_')
 
-    topology_out = args.topology_out or f"data/topology_{args.seed}_{stringified_noise}.json"
+    topology_out = args.topology_out or f"data/{args.seed}/topology_{stringified_noise}.json"
     topology_plot_out = topology_out.replace('.json', '.png')
-    policy_out = args.policy_out or f"data/policy_synthesis_{args.seed}_{stringified_noise}.csv"
+    policy_out = args.policy_out or f"data/{args.seed}/policy_synthesis_{stringified_noise}.csv"
+    metrics_out = args.metrics_out or f"reports/{args.seed}/metrics_{stringified_noise}.csv"
 
     topology_generator = TopologyGenerator(
         topology_out,
@@ -79,3 +83,13 @@ if __name__ == "__main__":
         height=1600,
         with_labels=True,
     )
+
+    metrics_analyzer = MetricsAnalyzer(
+        topo_path=topology_out,
+        policy_path=policy_out,
+        out_filepath=metrics_out,
+    )
+    metrics = metrics_analyzer.compute_all_metrics()
+    print("Computed Metrics:")
+    for k, v in metrics.items():
+        print(f" - {k}: {v}")
