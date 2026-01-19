@@ -68,7 +68,6 @@ class PolicySynthesizer:
             1. Generate spectral clustering candidates, filtering edges based on cluster membership and whitelist roles.
             2. Apply pruning rules to remove invalid or undesirable edges:
                 - Horizontal Links Pruning
-                - Cross-Zone Violations Pruning
                 - Direct Cloud Access Pruning
                 - Transitive Jumps Pruning
                 - Invalid Downstream Pruning
@@ -82,14 +81,18 @@ class PolicySynthesizer:
         print(f"\n--- Start filtering (Input: {initial_count}) ---")
 
         edges, horizontal_pruned_edges = self.prune_horizontal_links(edges)
-        edges, cross_zone_pruned_edges = self.prune_cross_zone_violations(edges)
+        # NOTE: Cross-Zone Violations Pruning Temporarily Disabled.
+        # The effectiveness of pruning edges between zones depends
+        # heavily on the number of zones and cannot currently be performed
+        # correctly without pruning a large number of legitimate connections.
+        # edges, cross_zone_pruned_edges = self.prune_cross_zone_violations(edges)
         edges, direct_cloud_pruned_edges = self.prune_direct_cloud_access(edges)
         edges, transitive_jumps_pruned_edges = self.prune_transitive_jumps(edges)
         edges, invalid_downstream_pruned_edges = self.prune_invalid_downstream(edges)
 
         total_pruned = (
             len(horizontal_pruned_edges)
-            + len(cross_zone_pruned_edges)
+            # + len(cross_zone_pruned_edges)
             + len(direct_cloud_pruned_edges)
             + len(transitive_jumps_pruned_edges)
             + len(invalid_downstream_pruned_edges)
@@ -98,10 +101,10 @@ class PolicySynthesizer:
         print(
             f"Spectral Clustering Candidates: {len(edges)}\n"
             f"1. Horizontal (Peer-to-Peer): {len(horizontal_pruned_edges)} deleted\n"
-            f"2. Cross-Zone Violations:     {len(cross_zone_pruned_edges)} deleted\n"
-            f"3. Cloud Direct Access:       {len(direct_cloud_pruned_edges)} deleted\n"
-            f"4. Redundant Shortcuts:       {len(transitive_jumps_pruned_edges)} deleted\n"
-            f"5. Invalid Downstream:        {len(invalid_downstream_pruned_edges)} deleted\n"
+            # f"2. Cross-Zone Violations:     {len(cross_zone_pruned_edges)} deleted\n"
+            f"2. Cloud Direct Access:       {len(direct_cloud_pruned_edges)} deleted\n"
+            f"3. Redundant Shortcuts:       {len(transitive_jumps_pruned_edges)} deleted\n"
+            f"4. Invalid Downstream:        {len(invalid_downstream_pruned_edges)} deleted\n"
             f"------------------------------------------------\n"
             f"Total deleted: {total_pruned}\n"
             f"Remained edges: {len(edges)}"
@@ -206,11 +209,14 @@ class PolicySynthesizer:
 
     def prune_cross_zone_violations(self, policy_edges: List[Dict]) -> Tuple[List[Dict], List[Dict]]:
         """
+        TEMPORARILY DISABLED TO AVOID OVER-PRUNING.
         Zone-based access control.
 
         Devices from different zones cannot communicate directly,
         except for higher-level devices (L3+).
         """
+        # FIXME: Add handling that will take into account the number of zones
+        #  and the number of nodes 2+ for more accurate pruning.
         valid = []
         pruned = []
 
