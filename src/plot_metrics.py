@@ -17,7 +17,7 @@ def generate_report_graph(
     plt.figure()
 
     plt.bar(
-        ['ASR', 'Weighted ASR', "LMI Reduction", "Heuristic FBR"],
+        ["ASR", "Weighted ASR", "LMI Reduction", "Heuristic FBR"],
         [metrics["ASR"], metrics["wASR"], metrics["LMI_reduction"], metrics["FBR"]]
     )
     plt.ylim(0, 1.0)
@@ -26,4 +26,4 @@ def generate_report_graph(
     plt.savefig(out_path, bbox_inches="tight")
     plt.close()
 
-    print(f"Saved: {out_path}")
+    print(f"Metrics graph saved: {out_path}")

@@ -95,4 +95,10 @@ if __name__ == "__main__":
     for k, v in metrics.items():
         print(f" - {k}: {v}")
 
-    generate_report_graph(metrics, args.seed, metrics_out.replace('.csv', '_plot.png'))
+    generate_report_graph(
+        metrics=metrics,
+        seed=args.seed,
+        noise_scale=args.noise_scale,
+        out_path=metrics_out.replace('.csv', '_plot.png')
+    )
+
