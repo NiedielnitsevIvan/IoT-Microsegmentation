@@ -3,6 +3,7 @@ import argparse
 from constants import DEFAULT_SEED
 from gen_topology import TopologyGenerator
 from metrics import MetricsAnalyzer
+from plot_metrics import generate_report_graph
 from plot_topology import TopologyVisualizer
 from policy_synthesizer import PolicySynthesizer
 
@@ -93,3 +94,5 @@ if __name__ == "__main__":
     print("Computed Metrics:")
     for k, v in metrics.items():
         print(f" - {k}: {v}")
+
+    generate_report_graph(metrics, args.seed, metrics_out.replace('.csv', '_plot.png'))
