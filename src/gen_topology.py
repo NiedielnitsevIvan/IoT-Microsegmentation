@@ -169,7 +169,7 @@ class TopologyGenerator:
             """
             Helper to find target in same zone, fallback to random.
             """
-            targets = idx.get(target_role, )
+            targets = idx.get(target_role, [])
             if not targets:
                 return None
 
@@ -201,13 +201,13 @@ class TopologyGenerator:
                 edges.append({"src": gateway_id, "dst": str(cloud_id), "proto": "HTTPS", "port": 443})
 
         # 4) Camera -> NVR (RTSP:554)
-        for cam_id in idx.get("camera", ):
+        for cam_id in idx.get("camera", []):
             if nvr_id := find_best_target(cam_id, "nvr"):
                 edges.append({"src": cam_id, "dst": str(nvr_id), "proto": "RTSP", "port": 554})
 
         # 5) Controller -> Actuator (CoAP:5683)
         # One controller might manage multiple actuators in its zone
-        for controller in idx.get("controller", ):
+        for controller in idx.get("controller", []):
             controller_zone = devices_map[controller].zone
             local_actuators = [
                 actuator for actuator in idx.get("actuator", [])
@@ -238,9 +238,9 @@ class TopologyGenerator:
         Add plausible "extra" edges using role-pair probabilities and degree caps.
         We avoid O(N^2) by sampling a bounded number per device.
 
-        Change: after selecting a destination role by relative weights, perform an
-        acceptance check using the *raw* scaled score (prob_matrix entry) so that
-        increasing `noise_scale` increases the absolute chance to add an edge.
+        After selecting a destination role by relative weights, an acceptance
+        check uses the raw scaled probability (prob_matrix entry), so increasing
+        `noise_scale` also increases the absolute chance to add an edge.
         """
         new_edges = []
         prob_matrix = self._role_pair_prob_matrix()
@@ -278,7 +278,7 @@ class TopologyGenerator:
                     continue
 
                 # 2. Select specific Target Node using Preferential Attachment & Zone Affinity
-                candidates = idx.get(target_role, )
+                candidates = idx.get(target_role, [])
                 candidates = [c for c in candidates if c != src_device.id]  # No self-loops
 
                 if not candidates:
@@ -356,15 +356,6 @@ class TopologyGenerator:
                 return p, port
         return candidates[int(random_generator.integers(0, len(candidates)))]
 
-    @staticmethod
-    def _even_map_sources_to_targets(src_ids: List[str], dst_ids: List[str]) -> Dict[str, List[str]]:
-        """
-        Evenly distribute each source to one or more targets (round-robin).
-        Returns mapping src -> [a few dst], default fanout = 1 (one target).
-        """
-        mapping = {src: [] for src in src_ids}
-        if not dst_ids:
-            return mapping
         for i, src in enumerate(src_ids):
             mapping[src].append(dst_ids[i % len(dst_ids)])
         return mapping

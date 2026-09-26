@@ -13,6 +13,8 @@ Metrics implemented:
     6. False Blocks (FB)
     7. Heuristic False Block Rate (FBR)
     8. Policy Complexity (PC)
+    9. Policy Compression Ratio (PCR)
+    10. Weighted LMI Reduction (wLMI_reduction)
 """
 
 import json
@@ -86,19 +88,26 @@ class MetricsAnalyzer:
         policy_lmi = self.calculate_lmi(policy_graph)
         lmi_reduction = 1 - (policy_lmi / full_topology_lmi) if full_topology_lmi > 0 else 0.0
 
+        full_topology_wlmi = self.calculate_weighted_lmi(full_topology_graph)
+        policy_wlmi = self.calculate_weighted_lmi(policy_graph)
+        wlmi_reduction = 1 - (policy_wlmi / full_topology_wlmi) if full_topology_wlmi > 0 else 0.0
+
         metrics = {
             "E_total": len(self.topo_edges),
             "E_policy": len(self.policy_edges),
-            "ASR": 1 - len(self.policy_edges) / len(self.topo_edges),
+            "ASR": round(1 - len(self.policy_edges) / len(self.topo_edges), 4),
             "wASR": round(self.calculate_weighted_asr(), 4),
-            "LMI_full ": round(full_topology_lmi, 4),
+            "LMI_full": round(full_topology_lmi, 4),
             "LMI_policy": round(policy_lmi, 4),
-            "wLMI_full": round(self.calculate_weighted_lmi(full_topology_graph), 4),
-            "wLMI_policy": round(self.calculate_weighted_lmi(policy_graph), 4),
+            "wLMI_full": round(full_topology_wlmi, 4),
+            "wLMI_policy": round(policy_wlmi, 4),
             "LMI_reduction": round(lmi_reduction, 4),
+            "wLMI_reduction": round(wlmi_reduction, 4),
             "FB": self.calculate_false_blocks(),
             "FBR": round(self.calculate_false_block_rate(), 4),
             "PC": self.calculate_policy_complexity(),
+            "PCR": round(len(self.policy_edges) / len(self.topo_edges), 4),
+            "N_devices": len(self.device_map),
         }
 
         if self.out_filepath is not None:
@@ -117,7 +126,7 @@ class MetricsAnalyzer:
 
     def calculate_weighted_asr(self) -> float:
         """
-        Weighted Attack Surface Reduction (ASR).
+        Weighted Attack Surface Reduction (wASR).
         Formula:
             1 - (Weighted_Policy_Surface / Weighted_Total_Surface)
 
@@ -211,6 +220,8 @@ class MetricsAnalyzer:
         if valid_nodes_count == 0:
             return 0.0
 
+        # possible_risk is always > 0 with the current criticality values, so
+        # valid_nodes_count == n_nodes; the normalization follows the paper: / |V|.
         return accumulated_score / n_nodes
 
     def calculate_false_blocks(self) -> int:
@@ -229,7 +240,7 @@ class MetricsAnalyzer:
         """
         Returns the Heuristic False Block Rate (FBR).
 
-        Percentage of required flows that were broken.
+        Fraction (0-1) of required flows that were blocked.
 
         Calculation:
             FBR = FB / |Ground Truth edges|

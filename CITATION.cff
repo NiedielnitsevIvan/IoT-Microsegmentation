@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite both the software and the paper (preferred-citation)."
+type: software
+title: "IoT Micro-Segmentation: spectral clustering and heuristic pruning for Zero Trust IoT networks"
+authors:
+  - family-names: "Niedielnitsev"
+    given-names: "Ivan"
+    orcid: "https://orcid.org/0009-0004-5265-3561"
+    affiliation: "Kharkiv National University of Radio Electronics"
+repository-code: "https://github.com/NiedielnitsevIvan/IoT-Microsegmentation"
+license: MIT
+version: "1.0.0"
+date-released: "2026-09-24"
+preferred-citation:
+  type: article
+  title: "Micro-Segmentation of IoT Networks in the Zero Trust Architecture"
+  authors:
+    - family-names: "Niedielnitsev"
+      given-names: "Ivan"
+      orcid: "https://orcid.org/0009-0004-5265-3561"
+      affiliation: "Kharkiv National University of Radio Electronics"
+    - family-names: "Antipov"
+      given-names: "Ivan"
+      orcid: "https://orcid.org/0000-0002-9754-4412"
+      affiliation: "Kharkiv National University of Radio Electronics"
+  journal: "Cybersecurity: Education, Science, Technique"
+  year: 2026
+  volume: 2
+  issue: 34
+  start: 417
+  end: 429
+  doi: "10.28925/2663-4023.2026.34.1336"
+  url: "https://doi.org/10.28925/2663-4023.2026.34.1336"

@@ -28,7 +28,7 @@ from matplotlib.patches import Circle, Patch
 
 from iot_models import DeviceFactory, IoTDevice
 
-Coordinates: np.array[np.float64, np.float64] = np.array
+Coordinates = np.ndarray  # 2D point/array of coordinates
 
 
 class TopologyVisualizer:

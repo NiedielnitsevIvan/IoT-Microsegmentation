@@ -180,7 +180,7 @@ class Actuator(IoTDevice):
     def criticality(self) -> float:
         """
         Actuators can directly affect the physical environment,
-        so is can affect the overall system's operation.
+        so it can affect the overall system's operation.
         """
         return 0.6
 
@@ -382,7 +382,6 @@ class DeviceFactory:
         if cls := DeviceFactory._MAPPING.get(role.lower()):
             return cls(node_id, zone, **kwargs)
 
-        print(f"Warning: Unknown role '{role}' for node {node_id}. Defaulting to generic IoTDevice.")
         raise ValueError(f"Unknown device role: {role}")
 
     @staticmethod

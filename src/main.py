@@ -40,7 +40,7 @@ if __name__ == "__main__":
     parser.add_argument("--topology_out", type=str, default=None,
                         help="Output path for generated topology JSON")
     parser.add_argument("--policy_out", type=str, default=None,
-                        help="Output path for synthesized policy JSON")
+                        help="Output path for synthesized policy CSV")
     parser.add_argument("--metrics_out", type=str, default=None,
                         help="Output path for computed metrics CSV")
 
@@ -75,7 +75,7 @@ if __name__ == "__main__":
         n_clusters=args.n_clusters,
         whitelist_roles=args.whitelist_roles,
     )
-    edges = policy_synthesizer.synthesize()
+    policy_synthesizer.synthesize()
 
     viz = TopologyVisualizer(topology_out, policy_out, args.seed)
     viz.create_plot(

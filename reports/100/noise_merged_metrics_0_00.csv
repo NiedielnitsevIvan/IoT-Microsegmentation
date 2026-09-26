@@ -1,0 +1,4 @@
+scale,noise_scale,E_total,E_policy,ASR,wASR,LMI_full,LMI_policy,wLMI_full,wLMI_policy,LMI_reduction,wLMI_reduction,FB,FBR,PC,PCR,N_devices
+small,0.0,25,25,0.0,0.0,0.0548,0.0548,0.0866,0.0866,0.0,0.0,0,0.0,25,1.0,31.0
+medium,0.0,287,287,0.0,0.0,0.0075,0.0075,0.0147,0.0147,0.0,0.0,0,0.0,287,1.0,327.0
+large,0.0,872,872,0.0,0.0,0.0023,0.0023,0.0045,0.0045,0.0,0.0,0,0.0,872,1.0,951.0

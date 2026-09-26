@@ -75,36 +75,33 @@ class PolicySynthesizer:
 
         More details on each pruning step are documented in their respective methods.
         """
-        edges = self.generate_spectral_candidates()
+        candidates = self.generate_spectral_candidates()
         initial_count = len(self.raw_edges)
+        spectral_pruned = initial_count - len(candidates)
 
         print(f"\n--- Start filtering (Input: {initial_count}) ---")
 
+        edges = candidates
         edges, horizontal_pruned_edges = self.prune_horizontal_links(edges)
-        # NOTE: Cross-Zone Violations Pruning Temporarily Disabled.
-        # The effectiveness of pruning edges between zones depends
-        # heavily on the number of zones and cannot currently be performed
-        # correctly without pruning a large number of legitimate connections.
-        # edges, cross_zone_pruned_edges = self.prune_cross_zone_violations(edges)
         edges, direct_cloud_pruned_edges = self.prune_direct_cloud_access(edges)
         edges, transitive_jumps_pruned_edges = self.prune_transitive_jumps(edges)
         edges, invalid_downstream_pruned_edges = self.prune_invalid_downstream(edges)
 
         total_pruned = (
-            len(horizontal_pruned_edges)
-            # + len(cross_zone_pruned_edges)
+            spectral_pruned
+            + len(horizontal_pruned_edges)
             + len(direct_cloud_pruned_edges)
             + len(transitive_jumps_pruned_edges)
             + len(invalid_downstream_pruned_edges)
         )
 
         print(
-            f"Spectral Clustering Candidates: {len(edges)}\n"
-            f"1. Horizontal (Peer-to-Peer): {len(horizontal_pruned_edges)} deleted\n"
-            # f"2. Cross-Zone Violations:     {len(cross_zone_pruned_edges)} deleted\n"
-            f"2. Cloud Direct Access:       {len(direct_cloud_pruned_edges)} deleted\n"
-            f"3. Redundant Shortcuts:       {len(transitive_jumps_pruned_edges)} deleted\n"
-            f"4. Invalid Downstream:        {len(invalid_downstream_pruned_edges)} deleted\n"
+            f"Spectral Clustering Candidates: {len(candidates)}\n"
+            f"1. Spectral filtering:        {spectral_pruned} deleted\n"
+            f"2. Horizontal (Peer-to-Peer): {len(horizontal_pruned_edges)} deleted\n"
+            f"3. Cloud Direct Access:       {len(direct_cloud_pruned_edges)} deleted\n"
+            f"4. Redundant Shortcuts:       {len(transitive_jumps_pruned_edges)} deleted\n"
+            f"5. Invalid Downstream:        {len(invalid_downstream_pruned_edges)} deleted\n"
             f"------------------------------------------------\n"
             f"Total deleted: {total_pruned}\n"
             f"Remained edges: {len(edges)}"
@@ -123,8 +120,7 @@ class PolicySynthesizer:
             3. Allow edges within the same cluster.
             4. Allow edges involving whitelist roles.
         """
-        if self.whitelist_roles is None:
-            whitelist_roles = self.DEFAULT_WHITELIST_ROLES
+        whitelist_roles = set(self.whitelist_roles) if self.whitelist_roles else self.DEFAULT_WHITELIST_ROLES
 
         node_ids = sorted([n["id"] for n in self.nodes])
         node_idx_map = {
@@ -203,34 +199,6 @@ class PolicySynthesizer:
 
             if src_device.level == dst_device.level and src_device.is_isolated_peer:
                 pruned.append(edge)
-            else:
-                valid.append(edge)
-        return valid, pruned
-
-    def prune_cross_zone_violations(self, policy_edges: List[Dict]) -> Tuple[List[Dict], List[Dict]]:
-        """
-        TEMPORARILY DISABLED TO AVOID OVER-PRUNING.
-        Zone-based access control.
-
-        Devices from different zones cannot communicate directly,
-        except for higher-level devices (L3+).
-        """
-        # FIXME: Add handling that will take into account the number of zones
-        #  and the number of nodes 2+ for more accurate pruning.
-        valid = []
-        pruned = []
-
-        for edge in policy_edges:
-            src_device = self._get_device(edge["src"])
-            dst_device = self._get_device(edge["dst"])
-
-            # Check whether devices are in different zones
-            if src_device.zone is not None and dst_device.zone is not None and src_device.zone != dst_device.zone:
-                # Allow only if a destination device is L3 (Gateway) or higher.
-                if dst_device.level >= 3:
-                    valid.append(edge)
-                else:
-                    pruned.append(edge)
             else:
                 valid.append(edge)
         return valid, pruned
